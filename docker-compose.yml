@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+    roster-app:
+        build: ./backend
+        container_name: roster-app
+        restart: on-failure
+        ports:
+            - "5001:5000"
+        networks:
+            roster:
+                ipv4_address:
+                    172.28.1.1
+        depends_on:
+          - postgres
+        
+        # only needed if another container is going to be calling this one
+        # expose:
+        #     - '5000'
+    
+    postgres:
+      build: ./db-server
+      container_name: roster-db
+      restart: on-failure
+      # ports:
+      #   - "5432:5432"
+      # environment:
+      #   #TODO load from env file
+      # - POSTGRES_USER=postgres
+      # - POSTGRES_PASSWORD=postgres
+      networks:
+          roster:
+              ipv4_address:
+                  172.28.1.2
+      expose:
+        - 5432
+
+networks:
+    roster:
+        ipam:
+            config:
+                - subnet: 172.28.1.0/16
