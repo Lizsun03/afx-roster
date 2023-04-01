@@ -1,0 +1,5 @@
+db_name = 'roster'
+db_user = 'postgres'
+db_pass = 'postgres'
+db_host = '127.28.1.2'
+db_port = '5432'

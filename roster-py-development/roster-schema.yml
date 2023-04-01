@@ -1,0 +1,475 @@
+openapi: '3.0.2'
+info:
+  title: AFX Roster App
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+  - url: https://api.server.test/v2
+    description: Server description
+# need server url
+
+components:
+  schemas:
+    Temp:
+      type: object
+      properties:
+        hi:
+          type: integer
+          nullable: true
+
+    TempArr:
+      type: array
+      items:
+        type: object
+        properties:
+          teamData:
+            $ref: "#/components/schemas/Team"
+          dancers:
+            type: array
+            items: 
+              $ref: "#/components/schemas/Dancer"
+
+          
+
+    Team:
+      type: object
+      required:
+        - "level"
+        - "practiceTime"
+        - "practiceLocation"
+        - "directorNames"
+        - 'teamId'
+      properties:
+        level:
+          type: integer
+        practiceTime:
+          type: string
+        practiceLocation:
+          type: string
+        directorNames:
+          type: array
+          items: 
+            type: "string"
+        teamId:
+          type: integer
+
+    Dancer:
+      type: object
+      required:
+        - "name"
+        - "email"
+        - "phone"
+        - "gender"
+        - "year"
+        - "danceExperience"
+        - "dancerId"
+        - "teamId" 
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        gender:
+          type: string
+        year:
+          type: string
+        danceExperience:
+          type: string
+        dancerId: 
+          type: integer
+        teamId: 
+          type: array
+          items:
+            type: integer
+
+    User:
+      type: object
+      required:
+        - "name"
+        - "email"
+        - "phone"
+        - "permissionLevel"
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        permissionLevel: 
+          type: string
+      
+  responses:
+    400Perm:
+      description: 'Insufficient permission'
+
+
+
+tags:
+  - name: Dancer
+    description: Dancer management
+  - name: Team
+    description: Team management
+  - name: SRC
+    description: SRC management (?)
+  - name: User
+    description: Roster users and authentication
+
+paths:
+  # Dancer
+  /dancer/add:
+    post:
+      tags:
+        - Dancer
+      summary: 'Adds new dancer to database'
+      description: 'Requires TODO permission or higher. Dancer initially has no team.'
+      parameters: []
+      requestBody:
+        description: "Necessary data to initialize dancer"
+        content:
+          'application/json':
+            schema:
+              type: object
+              required:
+                - "name"
+                - "email"
+                - "phone"
+                - "gender"
+                - "year"
+                - "danceExperience"
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                gender:
+                  type: string
+                year:
+                  type: string
+                danceExperience:
+                  type: string      
+            
+      responses:
+        '201':
+          description: Dancer successfully created
+        '401':
+          $ref: "#/components/responses/400Perm"
+        '409':
+          description: Duplicate dancer
+
+  /dancer:
+    get:
+      tags:
+        - Dancer
+      summary: 'Gets all dancers'
+      description: 'Requires TODO permission or higher'
+      parameters: []            
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dancer"
+              
+          
+        '401':
+          $ref: "#/components/responses/400Perm"
+
+  /dancer/{dancerId}/:
+    get:
+      tags:
+        - Dancer
+      summary: 'Get dancer based on ID'
+      description: 'Requires TODO permission or higher'
+      parameters:
+      - name: dancerId
+        in: path
+        description: "ID of dancer to query"
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dancer"
+                        
+        "400":
+          description: "Dancer not found"
+        "401":
+          description: "Insufficient permission"
+
+    put:
+      tags:
+        - Dancer
+      summary: 'Update a particular dancer based on attributes filled out on a form'
+      description: 'Requires TODO permission or higher'
+      parameters:
+      - name: dancerId
+        in: path
+        description: "ID of dancer to update"
+        required: true
+        schema:
+          type: integer
+        
+      requestBody:
+        description: "TODO figure out what fields and what the form would look like. None of these fields are required."
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                newTeam:
+                  type: string
+                  nullable: true
+                newDancerData:
+                  type: object
+                  required:
+                    - "name"
+                    - "email"
+                    - "phone"
+                    - "gender"
+                    - "year"
+                    - "danceExperience"
+                  properties:
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    phone:
+                      type: string
+                    gender:
+                      type: string
+                    year:
+                      type: string
+                    danceExperience:
+                      type: string     
+                  nullable: true
+                TODO:                  
+                  type: string
+
+            
+      responses:
+        '200':
+          description: Update successful
+          
+        '401':
+          $ref: "#/components/responses/400Perm"
+          
+  # Team
+  /team/add:
+    post:
+      tags:
+        - Team
+      summary: 'Adds new team to database'
+      description: 'Requires TODO permission or higher'
+      parameters: []
+      requestBody:
+        description: "All necessary team metadata"
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                level:
+                  type: integer
+                practiceTime:
+                  type: string
+                practiceLocation:
+                  type: string
+                directorNames:
+                  type: array
+                  items: 
+                    type: "string"  
+      responses:
+        '201':
+          description: Team successfully created
+        '401':
+          $ref: "#/components/responses/400Perm"
+        '409':
+          description: Duplicate team
+
+  /team:
+    get:
+      tags:
+        - Team
+      summary: 'Gets all teams'
+      description: 'Requires TODO permission or higher'
+      parameters: []            
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    teamData:
+                      $ref: "#/components/schemas/Team"
+                    dancers:
+                      type: array
+                      items: 
+                        $ref: "#/components/schemas/Dancer"
+            
+          
+        '401':
+          $ref: "#/components/responses/400Perm"
+
+  /team/{teamId}:
+    get:
+      tags:
+        - Team
+      summary: 'Gets team by name'
+      description: 'If successful, returns team metadata as well as an array of all dancers on this team'
+      parameters:
+      - name: teamId
+        in: path
+        description: "ID of team to query"
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        description: "test"
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/Dancer"
+            
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  teamData:
+                    $ref: "#/components/schemas/Team"
+                  dancers:
+                    type: array
+                    items: 
+                      $ref: "#/components/schemas/Dancer"
+                        
+        "400":
+          description: "Team not found"
+        "401":
+          description: "Insufficient permission"
+
+  /team/{teamId}/add:
+      put:
+        tags:
+          - Team
+        summary: 'Adds dancers to team. This is idempotent: adding a dancer already on the team changes nothing.'
+        description: 'Requires TODO permission or higher'
+        parameters:
+        - name: teamId
+          in: path
+          description: "ID of team to add dancers to"
+          required: true
+          schema:
+            type: integer
+        requestBody:
+          description: "List of dancers by ID"
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  dancerIds:
+                    type: array
+                    items: 
+                      type: "integer"
+        responses:
+          '201':
+            description: Team successfully created
+          '401':
+            $ref: "#/components/responses/400Perm"
+          '409':
+            description: Duplicate team
+
+
+  # User
+  /user/add:
+    put:
+      tags:
+        - User
+      summary: 'Add a new user'
+      description: 'Adds a new user with given name and permission level. TODO require authentication to do this'
+      parameters: []
+      requestBody:
+        description: 'New user metadata'
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        '200':
+          description: User successfully created
+        '401':
+          $ref: "#/components/responses/400Perm"
+
+  /user/login:
+    get:
+      tags:
+        - User
+      summary: 'Login an existing user'
+      description: 'Logs user into system'
+      parameters:
+      - name: username
+        in: 'query'
+        description: 'Username of user trying to login'
+        required: true
+        schema:
+          type: 'string'
+      - name: password
+        in: 'query'
+        description: 'Hashed password of user trying to login'
+        required: true
+        schema:
+          type: 'string'
+      responses:
+        '200':
+          description: Login successful TODO return a cookie?
+        '400':
+          description: Incorrect username/password
+
+
+
+  # Temp BS
+  /name:
+    get:
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: OK
+    put:
+      description: ''
+      parameters: []
+      requestBody:
+        description: "test"
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/Temp"
+      responses:
+        '200':
+          description: OK
+  /asdf:
+    get:
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: OK
